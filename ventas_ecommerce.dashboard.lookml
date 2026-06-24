@@ -1,0 +1,166 @@
+# ============================================================
+#  Dashboard de Ventas E-commerce
+#  Archivo: ventas_ecommerce.dashboard.lookml
+# ============================================================
+#
+#  NOTA SOBRE EL ASISTENTE DE GEMINI
+#  ---------------------------------
+#  El asistente de Gemini (Conversational Analytics / "Chat with
+#  Dashboard") NO se activa con una propiedad dentro de este YAML.
+#  Se habilita a nivel de INSTANCIA, en el Admin Panel:
+#
+#    Admin > Gemini in Looker
+#       - Gemini in Looker            -> ON
+#       - Conversational Analytics    -> ON
+#       - Enable Dashboard Agents     -> ON
+#       - Enable Chat with Dashboard  -> ON (en Trusted Tester Features)
+#
+#  + el usuario necesita el permiso `gemini_in_looker` sobre el modelo.
+#
+#  Si esos ajustes estan activos, el icono de Gemini aparece
+#  AUTOMATICAMENTE en TODOS los dashboards. No hace falta nada extra aqui.
+#  Lo unico que ayuda a Gemini desde el YAML son buenas `description`
+#  en el dashboard y en cada tile (le dan contexto al modelo).
+# ============================================================
+
+- dashboard: ventas_ecommerce
+  title: "Ventas E-commerce"
+  description: "Resumen de ingresos, pedidos y productos. Las descripciones de cada tile sirven de contexto para las consultas con Gemini."
+  layout: newspaper
+  preferred_viewer: dashboards-next
+
+  # Refresco automatico de datos
+  refresh: 12 hours
+
+  # ----- Filtros del dashboard -----
+  filters:
+  - name: rango_fechas
+    title: "Rango de Fechas"
+    type: field_filter
+    default_value: "30 days"
+    allow_multiple_values: true
+    required: false
+    model: ecommerce
+    explore: orders
+    field: orders.created_date
+
+  - name: pais
+    title: "Pais"
+    type: field_filter
+    default_value: ""
+    allow_multiple_values: true
+    required: false
+    model: ecommerce
+    explore: orders
+    field: users.country
+
+  # ----- Tiles / Elementos (6) -----
+  elements:
+
+  # 1) KPI - Ingresos Totales
+  - title: "Ingresos Totales"
+    name: ingresos_totales
+    note_text: "Ingresos netos del periodo, excluye pedidos cancelados."
+    model: ecommerce
+    explore: orders
+    type: single_value
+    fields: [orders.total_revenue]
+    filters:
+      orders.status: "-cancelled"
+    listen:
+      rango_fechas: orders.created_date
+      pais: users.country
+    value_format: "$#,##0"
+    row: 0
+    col: 0
+    width: 8
+    height: 3
+
+  # 2) KPI - Total de Pedidos
+  - title: "Total de Pedidos"
+    name: total_pedidos
+    note_text: "Numero de pedidos en el periodo seleccionado."
+    model: ecommerce
+    explore: orders
+    type: single_value
+    fields: [orders.count]
+    listen:
+      rango_fechas: orders.created_date
+      pais: users.country
+    row: 0
+    col: 8
+    width: 8
+    height: 3
+
+  # 3) KPI - Ticket Promedio
+  - title: "Ticket Promedio"
+    name: ticket_promedio
+    note_text: "Valor promedio por pedido (AOV)."
+    model: ecommerce
+    explore: orders
+    type: single_value
+    fields: [orders.average_order_value]
+    listen:
+      rango_fechas: orders.created_date
+      pais: users.country
+    value_format: "$#,##0.00"
+    row: 0
+    col: 16
+    width: 8
+    height: 3
+
+  # 4) Linea - Ingresos por Mes
+  - title: "Ingresos por Mes"
+    name: ingresos_por_mes
+    note_text: "Tendencia mensual de ingresos."
+    model: ecommerce
+    explore: orders
+    type: looker_line
+    fields: [orders.created_month, orders.total_revenue]
+    sorts: [orders.created_month]
+    listen:
+      rango_fechas: orders.created_date
+      pais: users.country
+    x_axis_gridlines: false
+    y_axis_gridlines: true
+    show_view_names: false
+    row: 3
+    col: 0
+    width: 12
+    height: 8
+
+  # 5) Columnas - Ventas por Categoria
+  - title: "Ventas por Categoria"
+    name: ventas_por_categoria
+    note_text: "Ingresos por categoria de producto, top 10."
+    model: ecommerce
+    explore: orders
+    type: looker_column
+    fields: [products.category, orders.total_revenue]
+    sorts: [orders.total_revenue desc]
+    limit: 10
+    listen:
+      rango_fechas: orders.created_date
+      pais: users.country
+    row: 3
+    col: 12
+    width: 12
+    height: 8
+
+  # 6) Tabla - Top 10 Productos
+  - title: "Top 10 Productos"
+    name: top_productos
+    note_text: "Productos con mayores ingresos en el periodo."
+    model: ecommerce
+    explore: orders
+    type: looker_grid
+    fields: [products.name, orders.count, orders.total_revenue]
+    sorts: [orders.total_revenue desc]
+    limit: 10
+    listen:
+      rango_fechas: orders.created_date
+      pais: users.country
+    row: 11
+    col: 0
+    width: 24
+    height: 7
