@@ -8,13 +8,6 @@
 
 Colección de dashboards de Looker escritos en LookML (archivos `*.dashboard.lookml`). La idea es que sirvan como referencia de buenas prácticas: estructura limpia, KPIs claros, filtros reutilizables y descripciones que dan contexto a los agentes de Gemini en Looker.
 
-## Vista previa
-
-<!-- Sustituye esta imagen por una captura real del dashboard renderizado en Looker -->
-![Vista previa del dashboard de Ventas E-commerce](assets/ventas_ecommerce.png)
-
-> **Tip:** sube una captura del dashboard ya renderizado a `assets/` y actualiza la ruta de arriba. Una imagen es, de lejos, lo que más ayuda a que un repo de BI se vea profesional.
-
 ## Contenido
 
 | Archivo | Descripción |
