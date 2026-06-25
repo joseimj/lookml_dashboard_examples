@@ -89,7 +89,7 @@ El icono de chat de Gemini **no** se activa desde el YAML: se habilita a nivel d
 
 ## Autor
 
-**[Tu nombre]** — [@joseimj](https://github.com/joseimj)
+**Jose Maldonado** — [@joseimj](https://github.com/joseimj)
 
 ## Licencia
 
